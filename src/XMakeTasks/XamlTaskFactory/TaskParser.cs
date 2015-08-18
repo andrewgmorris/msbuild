@@ -418,6 +418,7 @@ namespace Microsoft.Build.Tasks.Xaml
             if (!_switchesAdded.Contains(propertyToAdd.Name))
             {
                 _switchOrderList.Add(propertyToAdd.Name);
+                _switchesAdded.Add(propertyToAdd.Name);
             }
 
             // Inherit the Prefix from the Tool
