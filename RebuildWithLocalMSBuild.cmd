@@ -11,14 +11,13 @@ set MSBuildTempPath=%~dp0bin\MSBuild
 :: Check prerequisites
 if not defined VS140COMNTOOLS (
     echo Error: This script should be run from a Visual Studio 2015 Command Prompt.  
-    echo        Please see https://github.com/Microsoft/msbuild/wiki/Developer-Guide for build instructions.
+    echo        Please see https://github.com/Microsoft/msbuild/wiki/Building-Testing-and-Debugging for build instructions.
     exit /b 1
 )
 
-:: Build and copy output to bin\MSBuild
-:: Set TargetRetailBuildFramework to false so that we can target our own version of Microsoft.Build.Framework
-call "%~dp0BuildAndCopy.cmd" "%MSBuildTempPath%" false
+:: Build and copy output to bin\bootstrap
+call "%~dp0BuildAndCopy.cmd"
 
-:: Rebuild
-set MSBUILDCUSTOMPATH=%MSBuildTempPath%\MSBuild.exe
-"%~dp0build.cmd" /t:Rebuild
+:: Rebuild with bootstrapped msbuild
+set MSBUILDCUSTOMPATH="%~dp0\bin\Bootstrap\14.1\Bin\MSBuild.exe"
+"%~dp0build.cmd" /t:RebuildAndTest /p:BootstrappedMSBuild=true

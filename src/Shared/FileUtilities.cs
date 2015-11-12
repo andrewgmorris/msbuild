@@ -29,7 +29,7 @@ namespace Microsoft.Build.Shared
     {
         // A list of possible test runners. If the program running has one of these substrings in the name, we assume
         // this is a test harness.
-        private static readonly string[] s_testRunners = {
+        private static readonly string[] s_testRunners = { "XUNIT",
                                                   "NUNIT", "DEVENV", "MSTEST", "VSTEST", "TASKRUNNER", "VSTESTHOST",
                                                   "QTAGENT32", "CONCURRENT", "RESHARPER", "MDHOST", "TE.PROCESSHOST"
                                               };
@@ -91,7 +91,7 @@ namespace Microsoft.Build.Shared
                 if (dir == null)
                 {
                     // Can't get the assembly path, use current directory
-                    dir = Environment.CurrentDirectory;
+                    dir = Directory.GetCurrentDirectory();
                 }
                 else
                 {
@@ -889,7 +889,7 @@ namespace Microsoft.Build.Shared
         {
             // >= not > because MAX_PATH assumes a trailing null
             if (path.Length >= NativeMethodsShared.MAX_PATH ||
-               (!IsRootedNoThrow(path) && ((Environment.CurrentDirectory.Length + path.Length + 1 /* slash */) >= NativeMethodsShared.MAX_PATH)))
+               (!IsRootedNoThrow(path) && ((Directory.GetCurrentDirectory().Length + path.Length + 1 /* slash */) >= NativeMethodsShared.MAX_PATH)))
             {
                 // Attempt to make it shorter -- perhaps there are some \..\ elements
                 path = GetFullPathNoThrow(path);

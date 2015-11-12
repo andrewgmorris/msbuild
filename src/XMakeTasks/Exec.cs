@@ -38,9 +38,9 @@ namespace Microsoft.Build.Tasks
             _standardErrorEncoding = GetEncodingWithOsFallback();
         }
 
-    #endregion
+        #endregion
 
-    #region Fields
+        #region Fields
 
         // Are the ecodings for StdErr and StdOut streams valid
         private bool _encodingParametersValid = true;
@@ -114,7 +114,7 @@ namespace Microsoft.Build.Tasks
         {
             get { return _standardOutputEncoding; }
         }
-        
+
         /// <summary>
         /// Property specifying the encoding of the captured task standard error stream
         /// </summary>
@@ -221,7 +221,7 @@ namespace Microsoft.Build.Tasks
                 if (EncodingUtilities.CurrentSystemOemEncoding.CodePage != sw.Encoding.CodePage)
                 {
                     // Output to nul so we don't change output and logs.
-                    sw.WriteLine(string.Format("chcp {0}>nul", sw.Encoding.CodePage));
+                    sw.WriteLine(string.Format(@"%SystemRoot%\System32\chcp.com {0}>nul", sw.Encoding.CodePage));
                 }
 
                 // if the working directory is a UNC path, bracket the exec command with pushd and popd, because pushd

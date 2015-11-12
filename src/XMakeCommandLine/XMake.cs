@@ -882,21 +882,39 @@ namespace Microsoft.Build.CommandLine
                 // This is a hack for now to make sure the perf hit only happens
                 // on diagnostic. This should be changed to pipe it through properly,
                 // perhaps as part of a fuller tracing feature.
-                bool aLoggerIsDiagnostic = false;
-                foreach (var logger in loggers)
+                bool logTaskInputs = verbosity == LoggerVerbosity.Diagnostic;
+
+                if (!logTaskInputs)
                 {
-                    if (logger.Parameters != null &&
-                        (logger.Parameters.IndexOf("V=DIAG", StringComparison.OrdinalIgnoreCase) != -1 ||
-                         logger.Parameters.IndexOf("VERBOSITY=DIAG", StringComparison.OrdinalIgnoreCase) != -1)
-                       )
+                    foreach (var logger in loggers)
                     {
-                        aLoggerIsDiagnostic = true;
+                        if (logger.Parameters != null &&
+                            (logger.Parameters.IndexOf("V=DIAG", StringComparison.OrdinalIgnoreCase) != -1 ||
+                             logger.Parameters.IndexOf("VERBOSITY=DIAG", StringComparison.OrdinalIgnoreCase) != -1)
+                           )
+                        {
+                            logTaskInputs = true;
+                            break;
+                        }
                     }
                 }
 
-                if (verbosity == LoggerVerbosity.Diagnostic || aLoggerIsDiagnostic)
+                if (!logTaskInputs)
                 {
-                    Environment.SetEnvironmentVariable("MSBUILDLOGTASKINPUTS", "1");
+                    foreach (var logger in distributedLoggerRecords)
+                    {
+                        if (logger.CentralLogger != null)
+                        {
+                            if (logger.CentralLogger.Parameters != null &&
+                                (logger.CentralLogger.Parameters.IndexOf("V=DIAG", StringComparison.OrdinalIgnoreCase) != -1 ||
+                                 logger.CentralLogger.Parameters.IndexOf("VERBOSITY=DIAG", StringComparison.OrdinalIgnoreCase) != -1)
+                               )
+                            {
+                                logTaskInputs = true;
+                                break;
+                            }
+                        }
+                    }
                 }
 
                 projectCollection = new ProjectCollection
@@ -969,6 +987,8 @@ namespace Microsoft.Build.CommandLine
                     parameters.ForwardingLoggers = remoteLoggerRecords;
                     parameters.ToolsetDefinitionLocations = Microsoft.Build.Evaluation.ToolsetDefinitionLocations.ConfigurationFile | Microsoft.Build.Evaluation.ToolsetDefinitionLocations.Registry;
                     parameters.DetailedSummary = detailedSummary;
+                    parameters.LogTaskInputs = logTaskInputs;
+
                     if (!String.IsNullOrEmpty(toolsVersion))
                     {
                         parameters.DefaultToolsVersion = toolsVersion;
@@ -1152,7 +1172,7 @@ namespace Microsoft.Build.CommandLine
                 {
                     InitializationException.Throw("InvalidToolsVersionError", toolsVersion, e, false /*no stack*/);
                 }
-                
+
                 project.IsValidated = needToValidateProject;
                 project.SchemaFile = schemaFile;
 
@@ -1981,7 +2001,7 @@ namespace Microsoft.Build.CommandLine
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void StartLocalNodeOldOM(int nodeNumber)
         {
- 	        Microsoft.Build.BuildEngine.LocalNode.StartLocalNodeServer(nodeNumber);
+            Microsoft.Build.BuildEngine.LocalNode.StartLocalNodeServer(nodeNumber);
         }
 #endif
 
@@ -2540,7 +2560,7 @@ namespace Microsoft.Build.CommandLine
                     // If the string is empty then send it through as the distributed file logger WILL deal with EMPTY logfile paths
                     if (!String.IsNullOrEmpty(logFileName) && !Path.IsPathRooted(logFileName))
                     {
-                        fileParameters = fileParameters.Replace(logFileParameter, "logFile=" + Path.Combine(Environment.CurrentDirectory, logFileName));
+                        fileParameters = fileParameters.Replace(logFileParameter, "logFile=" + Path.Combine(Directory.GetCurrentDirectory(), logFileName));
                     }
                 }
                 catch (Exception e)
@@ -2562,7 +2582,7 @@ namespace Microsoft.Build.CommandLine
                         fileParameters += ";";
                     }
 
-                    fileParameters += "logFile=" + Path.Combine(Environment.CurrentDirectory, msbuildLogFileName);
+                    fileParameters += "logFile=" + Path.Combine(Directory.GetCurrentDirectory(), msbuildLogFileName);
                 }
 
                 //Gets the currently loaded assembly in which the specified class is defined

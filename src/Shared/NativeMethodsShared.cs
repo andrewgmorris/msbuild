@@ -199,7 +199,7 @@ namespace Microsoft.Build.Shared
             /// </summary>
             public MemoryStatus()
             {
-                _length = (uint)Marshal.SizeOf(typeof(NativeMethodsShared.MemoryStatus));
+                _length = (uint)Marshal.SizeOf<NativeMethodsShared.MemoryStatus>();
             }
 
             /// <summary>
@@ -294,7 +294,7 @@ namespace Microsoft.Build.Shared
         {
             public SecurityAttributes()
             {
-                _nLength = (uint)Marshal.SizeOf(typeof(NativeMethodsShared.SecurityAttributes));
+                _nLength = (uint)Marshal.SizeOf<NativeMethodsShared.SecurityAttributes>();
             }
 
             private uint _nLength;
@@ -334,9 +334,11 @@ namespace Microsoft.Build.Shared
             return SetErrorMode_VistaAndOlder(newMode);
         }
 
+        [SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Class name is NativeMethodsShared for increased clarity")]
         [DllImport("kernel32.dll", EntryPoint = "SetThreadErrorMode", SetLastError = true)]
         private static extern bool SetErrorMode_Win7AndNewer(int newMode, out int oldMode);
 
+        [SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Class name is NativeMethodsShared for increased clarity")]
         [DllImport("kernel32.dll", EntryPoint = "SetErrorMode", ExactSpelling = true)]
         private static extern int SetErrorMode_VistaAndOlder(int newMode);
 
@@ -348,18 +350,21 @@ namespace Microsoft.Build.Shared
         /// Really truly non pumping wait.
         /// Raw IntPtrs have to be used, because the marshaller does not support arrays of SafeHandle, only
         /// single SafeHandles.
-        /// </summary>       
+        /// </summary>
+        [SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Class name is NativeMethodsShared for increased clarity")]
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         public static extern Int32 WaitForMultipleObjects(uint handle, IntPtr[] handles, bool waitAll, uint milliseconds);
 
+        [SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Class name is NativeMethodsShared for increased clarity")]
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern void GetSystemInfo(ref SYSTEM_INFO lpSystemInfo);
 
+        [SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Class name is NativeMethodsShared for increased clarity")]
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern void GetNativeSystemInfo(ref SYSTEM_INFO lpSystemInfo);
 
         /// <summary>
-        /// Get the last write time of the fullpath to a directory. If the pointed path is not a directory, or 
+        /// Get the last write time of the fullpath to a directory. If the pointed path is not a directory, or
         /// if the directory does not exist, then false is returned and fileModifiedTimeUtc is set DateTime.MinValue.
         /// </summary>
         /// <param name="fullPath">Full path to the file in the filesystem</param>
